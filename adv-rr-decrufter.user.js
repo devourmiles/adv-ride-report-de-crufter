@@ -1,8 +1,8 @@
 // ADV Ride Report De-crufter
-// version 4.1
-// Release Date: 2018.07.17
+// version 4.2
+// Release Date: 2018.09.11
 // http://devourmiles.com
-// Copyright (c) 2009-2018, Stacy Brock, All Rights Reserved (except where
+// Copyright (c) 2009-2018, All Rights Reserved (except where
 // otherwise noted)
 //
 // You may modify this script for your own personal use,
@@ -24,7 +24,7 @@
 // ==UserScript==
 // @name           ADV Ride Report De-crufter
 // @namespace      http://devourmiles.com
-// @version        4.1
+// @version        4.2
 // @description    Remove cruft from ride reports on ADVRider, i.e. only show posts from the member who started the thread.
 //
 // @include        https://www.advrider.com/*
@@ -316,7 +316,7 @@ var advRR = {
     advRR.posts = $x("//li[contains(@id, 'post')]", XPathResult.ORDERED_NODE_SNAPSHOT_TYPE);
   },
   getThreadId: function () {
-    return advRR.queryStr.params[1];
+    return advRR.urlParts[5];
   },
   isFirstPage: function () {
     var pageNavHeader = $x("//span[@class='pageNavHeader']", XPathResult.FIRST_ORDERED_NODE_TYPE);
@@ -338,6 +338,7 @@ var advRR = {
 author: "",
 filter: false,
 queryStr: {},
+urlParts: [],
 exceptions: [],
 posts: []
 } // end advRR
@@ -404,15 +405,14 @@ clearExceptions = function() {
 
 async function doIt() {
   console.log("Firing up the ADV RR De-crufter...");
-  await sleep(2000); // wait for XenForo to do its thing
+  await sleep(1200); // wait for XenForo to do its thing
   console.log("ADV RR De-crufter ready to go.");
 
-  // get current query string
-  var queryStr = new Querystring();
-  advRR.queryStr = queryStr;
+  // get URL and split into an array of parts
+  advRR.urlParts = document.URL.split("/");
 
   // are we even viewing a thread?
-  if (!queryStr.contains("threads")) {
+  if (!advRR.urlParts[4] == "threads") {
     // nope, so GTFO
     return;
   }
